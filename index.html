@@ -178,7 +178,8 @@
     }
 
     // ================== LOAD PEOPLE IN A CATEGORY ==================
-    async function loadPeople(categoryName) {
+    // ================== LOAD PEOPLE IN A CATEGORY ==================
+async function loadPeople(categoryName) {
   hideAllViews();
   document.getElementById("category-view").classList.remove("hidden");
   document.getElementById("category-title").innerText = categoryName.replace(/_/g, " ");
@@ -187,7 +188,7 @@
   grid.innerHTML = `<div class="col-span-full text-[#a38b5f]">Loading personalities...</div>`;
 
   try {
-    // FIXED: Added CONTENT_PATH
+    // FIXED LINE BELOW
     const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${CONTENT_PATH}/${categoryName}`);
     const data = await res.json();
 
@@ -213,7 +214,7 @@
   }
 }
     // ================== LOAD PDFs FOR A PERSON ==================
-    // ================== LOAD PDFs FOR A PERSON ==================
+// ================== LOAD PDFs FOR A PERSON ==================
 async function loadPDFs(categoryName, personName) {
   hideAllViews();
   document.getElementById("person-view").classList.remove("hidden");
@@ -224,7 +225,7 @@ async function loadPDFs(categoryName, personName) {
   container.innerHTML = `<div class="text-[#a38b5f]">Loading documents...</div>`;
 
   try {
-    // FIXED: Added CONTENT_PATH
+    // FIXED LINE BELOW
     const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${CONTENT_PATH}/${categoryName}/${personName}`);
     const data = await res.json();
 
@@ -249,8 +250,9 @@ async function loadPDFs(categoryName, personName) {
   } catch (e) {
     container.innerHTML = `<div class="text-red-400">No documents found.</div>`;
   }
-}
-    // ================== LOAD & RENDER PDF ==================
+} 
+
+// ================== LOAD & RENDER PDF ==================
     async function loadPDF(categoryName, personName, fileName) {
   hideAllViews();
   document.getElementById("pdf-reader").classList.remove("hidden");
