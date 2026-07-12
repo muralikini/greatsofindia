@@ -179,76 +179,77 @@
 
     // ================== LOAD PEOPLE IN A CATEGORY ==================
     async function loadPeople(categoryName) {
-      hideAllViews();
-      document.getElementById("category-view").classList.remove("hidden");
-      document.getElementById("category-title").innerText = categoryName.replace(/_/g, " ");
+  hideAllViews();
+  document.getElementById("category-view").classList.remove("hidden");
+  document.getElementById("category-title").innerText = categoryName.replace(/_/g, " ");
 
-      const grid = document.getElementById("people-grid");
-      grid.innerHTML = `<div class="col-span-full text-[#a38b5f]">Loading personalities...</div>`;
+  const grid = document.getElementById("people-grid");
+  grid.innerHTML = `<div class="col-span-full text-[#a38b5f]">Loading personalities...</div>`;
 
-      try {
-        const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${categoryName}`);
-        const data = await res.json();
+  try {
+    // FIXED: Added CONTENT_PATH
+    const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${CONTENT_PATH}/${categoryName}`);
+    const data = await res.json();
 
-        grid.innerHTML = "";
+    grid.innerHTML = "";
 
-        data.forEach(item => {
-          if (item.type === "dir") {
-            const div = document.createElement("div");
-            div.className = `bg-[#1c1915] border border-[#3a3024] hover:border-[#c9a26f] rounded-2xl p-5 cursor-pointer card-hover`;
-            div.innerHTML = `
-              <div class="flex items-center gap-x-4">
-                <i class="fa-solid fa-user text-[#c9a26f]"></i>
-                <div class="font-medium">${item.name.replace(/_/g, " ")}</div>
-              </div>
-            `;
-            div.onclick = () => loadPDFs(categoryName, item.name);
-            grid.appendChild(div);
-          }
-        });
-
-      } catch (e) {
-        grid.innerHTML = `<div class="text-red-400">Failed to load personalities.</div>`;
+    data.forEach(item => {
+      if (item.type === "dir") {
+        const div = document.createElement("div");
+        div.className = `bg-[#1c1915] border border-[#3a3024] hover:border-[#c9a26f] rounded-2xl p-5 cursor-pointer card-hover`;
+        div.innerHTML = `
+          <div class="flex items-center gap-x-4">
+            <i class="fa-solid fa-user text-[#c9a26f]"></i>
+            <div class="font-medium">${item.name.replace(/_/g, " ")}</div>
+          </div>
+        `;
+        div.onclick = () => loadPDFs(categoryName, item.name);
+        grid.appendChild(div);
       }
-    }
+    });
 
+  } catch (e) {
+    grid.innerHTML = `<div class="text-red-400">Failed to load personalities.</div>`;
+  }
+}
     // ================== LOAD PDFs FOR A PERSON ==================
-    async function loadPDFs(categoryName, personName) {
-      hideAllViews();
-      document.getElementById("person-view").classList.remove("hidden");
-      document.getElementById("person-title").innerText = personName.replace(/_/g, " ");
-      currentPerson = personName;
+    // ================== LOAD PDFs FOR A PERSON ==================
+async function loadPDFs(categoryName, personName) {
+  hideAllViews();
+  document.getElementById("person-view").classList.remove("hidden");
+  document.getElementById("person-title").innerText = personName.replace(/_/g, " ");
+  currentPerson = personName;
 
-      const container = document.getElementById("pdf-list");
-      container.innerHTML = `<div class="text-[#a38b5f]">Loading documents...</div>`;
+  const container = document.getElementById("pdf-list");
+  container.innerHTML = `<div class="text-[#a38b5f]">Loading documents...</div>`;
 
-      try {
-        const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${categoryName}/${personName}`);
-        const data = await res.json();
+  try {
+    // FIXED: Added CONTENT_PATH
+    const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${CONTENT_PATH}/${categoryName}/${personName}`);
+    const data = await res.json();
 
-        container.innerHTML = "";
+    container.innerHTML = "";
 
-        data.forEach(file => {
-          if (file.name.endsWith(".pdf")) {
-            const div = document.createElement("div");
-            div.className = `flex items-center justify-between bg-[#1c1915] border border-[#3a3024] hover:border-[#c9a26f] rounded-2xl px-5 py-4 cursor-pointer`;
-            div.innerHTML = `
-              <div class="flex items-center gap-x-3">
-                <i class="fa-solid fa-file-pdf text-[#c9a26f]"></i>
-                <span>${file.name.replace(".pdf", "").replace(/_/g, " ")}</span>
-              </div>
-              <i class="fa-solid fa-arrow-right text-[#a38b5f]"></i>
-            `;
-            div.onclick = () => loadPDF(categoryName, personName, file.name);
-            container.appendChild(div);
-          }
-        });
-
-      } catch (e) {
-        container.innerHTML = `<div class="text-red-400">No documents found.</div>`;
+    data.forEach(file => {
+      if (file.name.endsWith(".pdf")) {
+        const div = document.createElement("div");
+        div.className = `flex items-center justify-between bg-[#1c1915] border border-[#3a3024] hover:border-[#c9a26f] rounded-2xl px-5 py-4 cursor-pointer`;
+        div.innerHTML = `
+          <div class="flex items-center gap-x-3">
+            <i class="fa-solid fa-file-pdf text-[#c9a26f]"></i>
+            <span>${file.name.replace(".pdf", "").replace(/_/g, " ")}</span>
+          </div>
+          <i class="fa-solid fa-arrow-right text-[#a38b5f]"></i>
+        `;
+        div.onclick = () => loadPDF(categoryName, personName, file.name);
+        container.appendChild(div);
       }
-    }
+    });
 
+  } catch (e) {
+    container.innerHTML = `<div class="text-red-400">No documents found.</div>`;
+  }
+}
     // ================== LOAD & RENDER PDF ==================
     async function loadPDF(categoryName, personName, fileName) {
   hideAllViews();
