@@ -215,43 +215,55 @@ async function loadPeople(categoryName) {
 }
     // ================== LOAD PDFs FOR A PERSON ==================
 // ================== LOAD PDFs FOR A PERSON ==================
-async function loadPDFs(categoryName, personName) {
+// ================== LOAD PEOPLE / PDFs IN A CATEGORY ==================
+async function loadPeople(categoryName) {
   hideAllViews();
-  document.getElementById("person-view").classList.remove("hidden");
-  document.getElementById("person-title").innerText = personName.replace(/_/g, " ");
-  currentPerson = personName;
+  document.getElementById("category-view").classList.remove("hidden");
+  document.getElementById("category-title").innerText = categoryName.replace(/_/g, " ");
 
-  const container = document.getElementById("pdf-list");
-  container.innerHTML = `<div class="text-[#a38b5f]">Loading documents...</div>`;
+  const grid = document.getElementById("people-grid");
+  grid.innerHTML = `<div class="col-span-full text-[#a38b5f]">Loading...</div>`;
 
   try {
-    // FIXED LINE BELOW
-    const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${CONTENT_PATH}/${categoryName}/${personName}`);
+    const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${CONTENT_PATH}/${categoryName}`);
     const data = await res.json();
 
-    container.innerHTML = "";
+    grid.innerHTML = "";
 
-    data.forEach(file => {
-      if (file.name.endsWith(".pdf")) {
+    data.forEach(item => {
+      if (item.type === "dir") {
+        // Person folder
+        const div = document.createElement("div");
+        div.className = `bg-[#1c1915] border border-[#3a3024] hover:border-[#c9a26f] rounded-2xl p-5 cursor-pointer card-hover`;
+        div.innerHTML = `
+          <div class="flex items-center gap-x-4">
+            <i class="fa-solid fa-user text-[#c9a26f]"></i>
+            <div class="font-medium">${item.name.replace(/_/g, " ")}</div>
+          </div>
+        `;
+        div.onclick = () => loadPDFs(categoryName, item.name);
+        grid.appendChild(div);
+      } 
+      else if (item.name.endsWith(".pdf")) {
+        // PDF directly inside category (your current case)
         const div = document.createElement("div");
         div.className = `flex items-center justify-between bg-[#1c1915] border border-[#3a3024] hover:border-[#c9a26f] rounded-2xl px-5 py-4 cursor-pointer`;
         div.innerHTML = `
           <div class="flex items-center gap-x-3">
             <i class="fa-solid fa-file-pdf text-[#c9a26f]"></i>
-            <span>${file.name.replace(".pdf", "").replace(/_/g, " ")}</span>
+            <span>${item.name.replace(".pdf", "").replace(/_/g, " ")}</span>
           </div>
           <i class="fa-solid fa-arrow-right text-[#a38b5f]"></i>
         `;
-        div.onclick = () => loadPDF(categoryName, personName, file.name);
-        container.appendChild(div);
+        div.onclick = () => loadPDF(categoryName, "", item.name); // personName is empty
+        grid.appendChild(div);
       }
     });
 
   } catch (e) {
-    container.innerHTML = `<div class="text-red-400">No documents found.</div>`;
+    grid.innerHTML = `<div class="text-red-400">Failed to load.</div>`;
   }
-} 
-
+}
 // ================== LOAD & RENDER PDF ==================
     async function loadPDF(categoryName, personName, fileName) {
   hideAllViews();
