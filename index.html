@@ -100,19 +100,20 @@
           <canvas id="pdf-canvas" class="w-full rounded-2xl"></canvas>
         </div>
 
-        <div class="flex items-center justify-between mt-6">
-          <button onclick="prevPage()" id="btn-prev"
-                  class="flex items-center gap-x-3 px-6 py-3.5 bg-[#1c1915] hover:bg-[#29251f] border border-[#3a3024] rounded-2xl disabled:opacity-40">
-            <i class="fa-solid fa-chevron-left"></i>
-            <span>Previous Page</span>
-          </button>
+        <!-- Centered navigation (new) -->
+<div class="flex items-center justify-center gap-4 mt-6">
+  <button onclick="prevPage()" id="btn-prev"
+          class="flex items-center gap-x-3 px-6 py-3.5 bg-[#1c1915] hover:bg-[#29251f] border border-[#3a3024] rounded-2xl disabled:opacity-40">
+    <i class="fa-solid fa-chevron-left"></i>
+    <span>Previous Page</span>
+  </button>
 
-          <button onclick="nextPage()" id="btn-next"
-                  class="flex items-center gap-x-3 px-6 py-3.5 bg-[#c9a26f] hover:bg-[#b38c55] text-[#0f0e0c] font-medium rounded-2xl disabled:opacity-40">
-            <span>Next Page</span>
-            <i class="fa-solid fa-chevron-right"></i>
-          </button>
-        </div>
+  <button onclick="nextPage()" id="btn-next"
+          class="flex items-center gap-x-3 px-6 py-3.5 bg-[#c9a26f] hover:bg-[#b38c55] text-[#0f0e0c] font-medium rounded-2xl disabled:opacity-40">
+    <span>Next Page</span>
+    <i class="fa-solid fa-chevron-right"></i>
+  </button>
+</div>
       </div>
     </div>
 
