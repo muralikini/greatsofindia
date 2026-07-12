@@ -16,35 +16,25 @@
       border: 1px solid #3a3024;
       box-shadow: 0 10px 40px rgba(0,0,0,0.5);
     }
-    .card-hover {
-      transition: all 0.2s ease;
-    }
-    .card-hover:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-    }
   </style>
 </head>
 <body class="bg-[#0f0e0c] text-[#e8e0d0]">
 
-  <!-- Top Navigation -->
+  <!-- Persistent Top Navigation -->
   <div class="border-b border-[#3a3024] bg-[#0f0e0c] sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-      <div class="flex items-center gap-x-3">
-        <div class="w-10 h-10 bg-[#c9a26f] rounded-2xl flex items-center justify-center">
+      
+      <!-- Logo -->
+      <div class="flex items-center gap-x-3 cursor-pointer" onclick="goToHome()">
+        <div class="w-9 h-9 bg-[#c9a26f] rounded-2xl flex items-center justify-center">
           <i class="fa-solid fa-landmark text-[#0f0e0c]"></i>
         </div>
-        <div>
-          <span class="text-2xl font-semibold tracking-tight">Greats of India</span>
-        </div>
+        <span class="text-xl font-semibold tracking-tight">Greats of India</span>
       </div>
 
-      <div id="top-nav" class="hidden items-center gap-x-3">
-        <button onclick="goBack()" 
-                class="px-4 py-2 text-sm flex items-center gap-x-2 bg-[#1c1915] hover:bg-[#29251f] border border-[#3a3024] rounded-2xl">
-          <i class="fa-solid fa-arrow-left"></i>
-          <span>Back</span>
-        </button>
+      <!-- Dynamic Navigation Actions -->
+      <div id="nav-actions" class="flex items-center gap-x-3">
+        <!-- Populated dynamically via JavaScript -->
       </div>
     </div>
   </div>
@@ -58,32 +48,29 @@
         <p class="text-[#a38b5f] mt-3">Honoring the people who shaped our nation across generations</p>
       </div>
 
-      <!-- Search Bar -->
+      <!-- Search -->
       <div class="max-w-xl mx-auto mb-8">
         <div class="relative">
-          <input type="text" id="search-input" placeholder="Search by name or category..." 
-                 class="w-full bg-[#1c1915] border border-[#3a3024] rounded-2xl px-5 py-3 pl-12 text-sm focus:outline-none focus:border-[#c9a26f]">
+          <input type="text" id="search-input" placeholder="Search categories..." 
+                 class="w-full bg-[#1c1915] border border-[#3a3024] rounded-2xl px-5 py-3 pl-12 text-sm focus:outline-none">
           <i class="fa-solid fa-search absolute left-5 top-4 text-[#a38b5f]"></i>
         </div>
       </div>
 
-      <!-- Categories Grid -->
       <div class="text-[#a38b5f] text-sm mb-3 px-1">CATEGORIES</div>
-      <div id="categories-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-        <!-- Dynamically loaded -->
-      </div>
+      <div id="categories-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"></div>
     </div>
 
     <!-- CATEGORY VIEW -->
     <div id="category-view" class="hidden">
-      <div class="mb-6">
-        <div class="text-[#a38b5f] text-sm">CATEGORY</div>
-        <div id="category-title" class="text-3xl font-semibold"></div>
+      <div class="mb-6 flex items-center justify-between">
+        <div>
+          <div class="text-[#a38b5f] text-sm">CATEGORY</div>
+          <div id="category-title" class="text-3xl font-semibold"></div>
+        </div>
       </div>
-      <div class="text-[#a38b5f] text-sm mb-3 px-1">PERSONALITIES</div>
-      <div id="people-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-        <!-- Dynamically loaded -->
-      </div>
+      <div class="text-[#a38b5f] text-sm mb-3 px-1">PERSONALITIES / DOCUMENTS</div>
+      <div id="people-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"></div>
     </div>
 
     <!-- PERSON VIEW -->
@@ -92,10 +79,8 @@
         <div class="text-[#a38b5f] text-sm">PERSON</div>
         <div id="person-title" class="text-3xl font-semibold"></div>
       </div>
-      <div class="text-[#a38b5f] text-sm mb-3 px-1">DOCUMENTS &amp; PDFs</div>
-      <div id="pdf-list" class="space-y-3 max-w-2xl">
-        <!-- Dynamically loaded -->
-      </div>
+      <div class="text-[#a38b5f] text-sm mb-3 px-1">DOCUMENTS</div>
+      <div id="pdf-list" class="space-y-3 max-w-2xl"></div>
     </div>
 
     <!-- PDF READER -->
@@ -136,13 +121,61 @@
   <script>
     const GITHUB_OWNER = "muralikini";
     const GITHUB_REPO = "greatsofindia";
-    const CONTENT_PATH = "indiangreats"; // root of repo
+    const CONTENT_PATH = "indiangreats";
 
     let pdfDoc = null;
     let currentPageNum = 1;
     let totalPages = 1;
+    let currentCategory = "";
     let currentPerson = "";
     let currentPDF = "";
+
+    // ================== UPDATE TOP NAV ==================
+    function updateNav(currentView) {
+      const nav = document.getElementById("nav-actions");
+      nav.innerHTML = "";
+
+      if (currentView === "home") {
+        nav.innerHTML = ``;
+      } 
+      else {
+        let html = `
+          <button onclick="goToHome()" 
+                  class="px-4 py-2 text-sm flex items-center gap-x-2 bg-[#1c1915] hover:bg-[#29251f] border border-[#3a3024] rounded-2xl">
+            <i class="fa-solid fa-home"></i>
+            <span>Home</span>
+          </button>
+        `;
+
+        if (currentCategory) {
+          html += `
+            <button onclick="changeCategory()" 
+                    class="px-4 py-2 text-sm flex items-center gap-x-2 bg-[#1c1915] hover:bg-[#29251f] border border-[#3a3024] rounded-2xl">
+              <i class="fa-solid fa-folder"></i>
+              <span>Change Category</span>
+            </button>
+          `;
+        }
+
+        nav.innerHTML = html;
+      }
+    }
+
+    function goToHome() {
+      hideAllViews();
+      document.getElementById("home-view").classList.remove("hidden");
+      currentCategory = "";
+      currentPerson = "";
+      updateNav("home");
+    }
+
+    function changeCategory() {
+      hideAllViews();
+      document.getElementById("home-view").classList.remove("hidden");
+      currentCategory = "";
+      currentPerson = "";
+      updateNav("home");
+    }
 
     // ================== LOAD CATEGORIES ==================
     async function loadCategories() {
@@ -152,177 +185,147 @@
       try {
         const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${CONTENT_PATH}`);
         const data = await res.json();
-
         grid.innerHTML = "";
 
         data.forEach(item => {
           if (item.type === "dir") {
             const div = document.createElement("div");
-            div.className = `bg-[#1c1915] border border-[#3a3024] hover:border-[#c9a26f] rounded-2xl p-5 cursor-pointer card-hover`;
+            div.className = `bg-[#1c1915] border border-[#3a3024] hover:border-[#c9a26f] rounded-2xl p-5 cursor-pointer`;
             div.innerHTML = `
               <div class="flex items-center gap-x-4">
                 <i class="fa-solid fa-folder text-[#c9a26f] text-2xl"></i>
-                <div>
-                  <div class="font-medium">${item.name.replace(/_/g, " ")}</div>
-                </div>
+                <div class="font-medium">${item.name.replace(/_/g, " ")}</div>
               </div>
             `;
-            div.onclick = () => loadPeople(item.name);
+            div.onclick = () => loadCategoryContent(item.name);
             grid.appendChild(div);
           }
         });
-
       } catch (e) {
-        grid.innerHTML = `<div class="col-span-full text-red-400 text-center">Failed to load categories. Make sure repo is public.</div>`;
+        grid.innerHTML = `<div class="text-red-400">Failed to load categories.</div>`;
       }
     }
 
-    // ================== LOAD PEOPLE IN A CATEGORY ==================
-    // ================== LOAD PEOPLE IN A CATEGORY ==================
-async function loadPeople(categoryName) {
-  hideAllViews();
-  document.getElementById("category-view").classList.remove("hidden");
-  document.getElementById("category-title").innerText = categoryName.replace(/_/g, " ");
+    async function loadCategoryContent(categoryName) {
+      currentCategory = categoryName;
+      hideAllViews();
+      document.getElementById("category-view").classList.remove("hidden");
+      document.getElementById("category-title").innerText = categoryName.replace(/_/g, " ");
+      updateNav("category");
 
-  const grid = document.getElementById("people-grid");
-  grid.innerHTML = `<div class="col-span-full text-[#a38b5f]">Loading personalities...</div>`;
+      const grid = document.getElementById("people-grid");
+      grid.innerHTML = `<div class="col-span-full text-[#a38b5f]">Loading...</div>`;
 
-  try {
-    // FIXED LINE BELOW
-    const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${CONTENT_PATH}/${categoryName}`);
-    const data = await res.json();
+      try {
+        const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${CONTENT_PATH}/${categoryName}`);
+        const data = await res.json();
+        grid.innerHTML = "";
 
-    grid.innerHTML = "";
-
-    data.forEach(item => {
-      if (item.type === "dir") {
-        const div = document.createElement("div");
-        div.className = `bg-[#1c1915] border border-[#3a3024] hover:border-[#c9a26f] rounded-2xl p-5 cursor-pointer card-hover`;
-        div.innerHTML = `
-          <div class="flex items-center gap-x-4">
-            <i class="fa-solid fa-user text-[#c9a26f]"></i>
-            <div class="font-medium">${item.name.replace(/_/g, " ")}</div>
-          </div>
-        `;
-        div.onclick = () => loadPDFs(categoryName, item.name);
-        grid.appendChild(div);
+        data.forEach(item => {
+          if (item.type === "dir") {
+            const div = document.createElement("div");
+            div.className = `bg-[#1c1915] border border-[#3a3024] hover:border-[#c9a26f] rounded-2xl p-5 cursor-pointer`;
+            div.innerHTML = `
+              <div class="flex items-center gap-x-4">
+                <i class="fa-solid fa-user text-[#c9a26f]"></i>
+                <div class="font-medium">${item.name.replace(/_/g, " ")}</div>
+              </div>
+            `;
+            div.onclick = () => loadPerson(categoryName, item.name);
+            grid.appendChild(div);
+          } else if (item.name.endsWith(".pdf")) {
+            const div = document.createElement("div");
+            div.className = `flex items-center justify-between bg-[#1c1915] border border-[#3a3024] hover:border-[#c9a26f] rounded-2xl px-5 py-4 cursor-pointer`;
+            div.innerHTML = `
+              <div class="flex items-center gap-x-3">
+                <i class="fa-solid fa-file-pdf text-[#c9a26f]"></i>
+                <span>${item.name.replace(".pdf", "").replace(/_/g, " ")}</span>
+              </div>
+            `;
+            div.onclick = () => loadPDF(categoryName, "", item.name);
+            grid.appendChild(div);
+          }
+        });
+      } catch (e) {
+        grid.innerHTML = `<div class="text-red-400">Failed to load.</div>`;
       }
-    });
+    }
 
-  } catch (e) {
-    grid.innerHTML = `<div class="text-red-400">Failed to load personalities.</div>`;
-  }
-}
-    // ================== LOAD PDFs FOR A PERSON ==================
-// ================== LOAD PDFs FOR A PERSON ==================
-// ================== LOAD PEOPLE / PDFs IN A CATEGORY ==================
-async function loadPeople(categoryName) {
-  hideAllViews();
-  document.getElementById("category-view").classList.remove("hidden");
-  document.getElementById("category-title").innerText = categoryName.replace(/_/g, " ");
+    async function loadPerson(categoryName, personName) {
+      currentPerson = personName;
+      hideAllViews();
+      document.getElementById("person-view").classList.remove("hidden");
+      document.getElementById("person-title").innerText = personName.replace(/_/g, " ");
+      updateNav("person");
 
-  const grid = document.getElementById("people-grid");
-  grid.innerHTML = `<div class="col-span-full text-[#a38b5f]">Loading...</div>`;
+      const container = document.getElementById("pdf-list");
+      container.innerHTML = `<div class="text-[#a38b5f]">Loading documents...</div>`;
 
-  try {
-    const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${CONTENT_PATH}/${categoryName}`);
-    const data = await res.json();
+      try {
+        const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${CONTENT_PATH}/${categoryName}/${personName}`);
+        const data = await res.json();
+        container.innerHTML = "";
 
-    grid.innerHTML = "";
-
-    data.forEach(item => {
-      if (item.type === "dir") {
-        // Person folder
-        const div = document.createElement("div");
-        div.className = `bg-[#1c1915] border border-[#3a3024] hover:border-[#c9a26f] rounded-2xl p-5 cursor-pointer card-hover`;
-        div.innerHTML = `
-          <div class="flex items-center gap-x-4">
-            <i class="fa-solid fa-user text-[#c9a26f]"></i>
-            <div class="font-medium">${item.name.replace(/_/g, " ")}</div>
-          </div>
-        `;
-        div.onclick = () => loadPDFs(categoryName, item.name);
-        grid.appendChild(div);
-      } 
-      else if (item.name.endsWith(".pdf")) {
-        // PDF directly inside category (your current case)
-        const div = document.createElement("div");
-        div.className = `flex items-center justify-between bg-[#1c1915] border border-[#3a3024] hover:border-[#c9a26f] rounded-2xl px-5 py-4 cursor-pointer`;
-        div.innerHTML = `
-          <div class="flex items-center gap-x-3">
-            <i class="fa-solid fa-file-pdf text-[#c9a26f]"></i>
-            <span>${item.name.replace(".pdf", "").replace(/_/g, " ")}</span>
-          </div>
-          <i class="fa-solid fa-arrow-right text-[#a38b5f]"></i>
-        `;
-        div.onclick = () => loadPDF(categoryName, "", item.name); // personName is empty
-        grid.appendChild(div);
+        data.forEach(file => {
+          if (file.name.endsWith(".pdf")) {
+            const div = document.createElement("div");
+            div.className = `flex items-center justify-between bg-[#1c1915] border border-[#3a3024] hover:border-[#c9a26f] rounded-2xl px-5 py-4 cursor-pointer`;
+            div.innerHTML = `
+              <div class="flex items-center gap-x-3">
+                <i class="fa-solid fa-file-pdf text-[#c9a26f]"></i>
+                <span>${file.name.replace(".pdf", "").replace(/_/g, " ")}</span>
+              </div>
+            `;
+            div.onclick = () => loadPDF(categoryName, personName, file.name);
+            container.appendChild(div);
+          }
+        });
+      } catch (e) {
+        container.innerHTML = `<div class="text-red-400">No documents found.</div>`;
       }
-    });
+    }
 
-  } catch (e) {
-    grid.innerHTML = `<div class="text-red-400">Failed to load.</div>`;
-  }
-}
-// ================== LOAD & RENDER PDF ==================
     async function loadPDF(categoryName, personName, fileName) {
-  hideAllViews();
-  document.getElementById("pdf-reader").classList.remove("hidden");
+      hideAllViews();
+      document.getElementById("pdf-reader").classList.remove("hidden");
+      updateNav("pdf");
 
-  document.getElementById("reader-person").innerText = personName.replace(/_/g, " ");
-  document.getElementById("reader-pdf-name").innerText = fileName.replace(".pdf", "").replace(/_/g, " ");
+      document.getElementById("reader-person").innerText = personName ? personName.replace(/_/g, " ") : categoryName.replace(/_/g, " ");
+      document.getElementById("reader-pdf-name").innerText = fileName.replace(".pdf", "").replace(/_/g, " ");
 
-  currentPDF = fileName;
+      currentPDF = fileName;
 
-  // Correct path including 'indiangreats'
-  const pdfUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/${CONTENT_PATH}/${categoryName}/${personName}/${fileName}`;
+      const pdfUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/${CONTENT_PATH}/${categoryName}/${personName ? personName + '/' : ''}${fileName}`;
 
-  try {
-    pdfDoc = await pdfjsLib.getDocument(pdfUrl).promise;
-    totalPages = pdfDoc.numPages;
-    currentPageNum = 1;
+      try {
+        pdfDoc = await pdfjsLib.getDocument(pdfUrl).promise;
+        totalPages = pdfDoc.numPages;
+        currentPageNum = 1;
+        document.getElementById("total-pages").innerText = totalPages;
+        renderPage(currentPageNum);
+      } catch (e) {
+        alert("Failed to load PDF");
+      }
+    }
 
-    document.getElementById("total-pages").innerText = totalPages;
-    renderPage(currentPageNum);
-
-  } catch (e) {
-    alert("Failed to load PDF. Please check the file path.");
-    console.error(e);
-  }
-}
     async function renderPage(pageNum) {
       const page = await pdfDoc.getPage(pageNum);
       const canvas = document.getElementById("pdf-canvas");
       const ctx = canvas.getContext("2d");
-
       const viewport = page.getViewport({ scale: 1.6 });
       canvas.width = viewport.width;
       canvas.height = viewport.height;
-
       await page.render({ canvasContext: ctx, viewport: viewport }).promise;
 
       document.getElementById("current-page").innerText = pageNum;
       document.getElementById("btn-prev").disabled = pageNum === 1;
       document.getElementById("btn-next").disabled = pageNum === totalPages;
-
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function nextPage() {
-      if (currentPageNum < totalPages) {
-        currentPageNum++;
-        renderPage(currentPageNum);
-      }
-    }
+    function nextPage() { if (currentPageNum < totalPages) { currentPageNum++; renderPage(currentPageNum); } }
+    function prevPage() { if (currentPageNum > 1) { currentPageNum--; renderPage(currentPageNum); } }
 
-    function prevPage() {
-      if (currentPageNum > 1) {
-        currentPageNum--;
-        renderPage(currentPageNum);
-      }
-    }
-
-    // ================== NAVIGATION ==================
     function hideAllViews() {
       document.getElementById("home-view").classList.add("hidden");
       document.getElementById("category-view").classList.add("hidden");
@@ -330,37 +333,20 @@ async function loadPeople(categoryName) {
       document.getElementById("pdf-reader").classList.add("hidden");
     }
 
-    function goBack() {
-      // Simple back navigation
-      if (!document.getElementById("pdf-reader").classList.contains("hidden")) {
-        document.getElementById("pdf-reader").classList.add("hidden");
-        document.getElementById("person-view").classList.remove("hidden");
-      } else if (!document.getElementById("person-view").classList.contains("hidden")) {
-        document.getElementById("person-view").classList.add("hidden");
-        document.getElementById("category-view").classList.remove("hidden");
-      } else {
-        location.reload();
-      }
-    }
-
-    // ================== SEARCH ==================
     function setupSearch() {
       const input = document.getElementById("search-input");
       input.addEventListener("input", () => {
         const term = input.value.toLowerCase();
-        const cards = document.querySelectorAll("#categories-grid > div");
-        
-        cards.forEach(card => {
-          const text = card.innerText.toLowerCase();
-          card.style.display = text.includes(term) ? "block" : "none";
+        document.querySelectorAll("#categories-grid > div").forEach(card => {
+          card.style.display = card.innerText.toLowerCase().includes(term) ? "block" : "none";
         });
       });
     }
 
-    // ================== INITIALIZE ==================
     window.onload = function() {
       loadCategories();
       setupSearch();
+      updateNav("home");
     }
   </script>
 </body>
