@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Greats of India</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <style>
+    body { font-family: 'Inter', system_ui, sans-serif; }
+    .book-container {
+      max-width: 820px;
+      margin: 0 auto;
+      background: #1c1915;
+      border: 1px solid #3a3024;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    }
+    .card-hover {
+      transition: all 0.2s ease;
+    }
+    .card-hover:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    }
+  </style>
+</head>
+<body class="bg-[#0f0e0c] text-[#e8e0d0]">
+
+  <!-- Top Navigation -->
+  <div class="border-b border-[#3a3024] bg-[#0f0e0c] sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-x-3">
+        <div class="w-10 h-10 bg-[#c9a26f] rounded-2xl flex items-center justify-center">
+          <i class="fa-solid fa-landmark text-[#0f0e0c]"></i>
+        </div>
+        <div>
+          <span class="text-2xl font-semibold tracking-tight">Greats of India</span>
+        </div>
+      </div>
+
+      <div id="top-nav" class="hidden items-center gap-x-3">
+        <button onclick="goBack()" 
+                class="px-4 py-2 text-sm flex items-center gap-x-2 bg-[#1c1915] hover:bg-[#29251f] border border-[#3a3024] rounded-2xl">
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>Back</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-6 pt-8 pb-12">
+
+    <!-- HOME VIEW -->
+    <div id="home-view">
+      <div class="max-w-2xl mx-auto text-center mb-10">
+        <h1 class="text-4xl font-semibold tracking-tight">Greats of India</h1>
+        <p class="text-[#a38b5f] mt-3">Honoring the people who shaped our nation across generations</p>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="max-w-xl mx-auto mb-8">
+        <div class="relative">
+          <input type="text" id="search-input" placeholder="Search by name or category..." 
+                 class="w-full bg-[#1c1915] border border-[#3a3024] rounded-2xl px-5 py-3 pl-12 text-sm focus:outline-none focus:border-[#c9a26f]">
+          <i class="fa-solid fa-search absolute left-5 top-4 text-[#a38b5f]"></i>
+        </div>
+      </div>
+
+      <!-- Categories Grid -->
+      <div class="text-[#a38b5f] text-sm mb-3 px-1">CATEGORIES</div>
+      <div id="categories-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        <!-- Dynamically loaded -->
+      </div>
+    </div>
+
+    <!-- CATEGORY VIEW -->
+    <div id="category-view" class="hidden">
+      <div class="mb-6">
+        <div class="text-[#a38b5f] text-sm">CATEGORY</div>
+        <div id="category-title" class="text-3xl font-semibold"></div>
+      </div>
+      <div class="text-[#a38b5f] text-sm mb-3 px-1">PERSONALITIES</div>
+      <div id="people-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        <!-- Dynamically loaded -->
+      </div>
+    </div>
+
+    <!-- PERSON VIEW -->
+    <div id="person-view" class="hidden">
+      <div class="mb-6">
+        <div class="text-[#a38b5f] text-sm">PERSON</div>
+        <div id="person-title" class="text-3xl font-semibold"></div>
+      </div>
+      <div class="text-[#a38b5f] text-sm mb-3 px-1">DOCUMENTS &amp; PDFs</div>
+      <div id="pdf-list" class="space-y-3 max-w-2xl">
+        <!-- Dynamically loaded -->
+      </div>
+    </div>
+
+    <!-- PDF READER -->
+    <div id="pdf-reader" class="hidden">
+      <div class="max-w-[820px] mx-auto">
+        <div class="flex justify-between items-center mb-4 px-2">
+          <div>
+            <div id="reader-person" class="text-[#a38b5f] text-sm"></div>
+            <div id="reader-pdf-name" class="font-medium"></div>
+          </div>
+          <div class="text-sm text-[#a38b5f]">
+            Page <span id="current-page">1</span> of <span id="total-pages">1</span>
+          </div>
+        </div>
+
+        <div class="book-container rounded-3xl p-6">
+          <canvas id="pdf-canvas" class="w-full rounded-2xl"></canvas>
+        </div>
+
+        <div class="flex items-center justify-between mt-6">
+          <button onclick="prevPage()" id="btn-prev"
+                  class="flex items-center gap-x-3 px-6 py-3.5 bg-[#1c1915] hover:bg-[#29251f] border border-[#3a3024] rounded-2xl disabled:opacity-40">
+            <i class="fa-solid fa-chevron-left"></i>
+            <span>Previous Page</span>
+          </button>
+
+          <button onclick="nextPage()" id="btn-next"
+                  class="flex items-center gap-x-3 px-6 py-3.5 bg-[#c9a26f] hover:bg-[#b38c55] text-[#0f0e0c] font-medium rounded-2xl disabled:opacity-40">
+            <span>Next Page</span>
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const GITHUB_OWNER = "muralikini";
+    const GITHUB_REPO = "greatsofindia";
+    const CONTENT_PATH = "greatsofindia"; // root of repo
+
+    let pdfDoc = null;
+    let currentPageNum = 1;
+    let totalPages = 1;
+    let currentPerson = "";
+    let currentPDF = "";
+
+    // ================== LOAD CATEGORIES ==================
+    async function loadCategories() {
+      const grid = document.getElementById("categories-grid");
+      grid.innerHTML = `<div class="col-span-full text-center text-[#a38b5f] py-8">Loading categories...</div>`;
+
+      try {
+        const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${CONTENT_PATH}`);
+        const data = await res.json();
+
+        grid.innerHTML = "";
+
+        data.forEach(item => {
+          if (item.type === "dir") {
+            const div = document.createElement("div");
+            div.className = `bg-[#1c1915] border border-[#3a3024] hover:border-[#c9a26f] rounded-2xl p-5 cursor-pointer card-hover`;
+            div.innerHTML = `
+              <div class="flex items-center gap-x-4">
+                <i class="fa-solid fa-folder text-[#c9a26f] text-2xl"></i>
+                <div>
+                  <div class="font-medium">${item.name.replace(/_/g, " ")}</div>
+                </div>
+              </div>
+            `;
+            div.onclick = () => loadPeople(item.name);
+            grid.appendChild(div);
+          }
+        });
+
+      } catch (e) {
+        grid.innerHTML = `<div class="col-span-full text-red-400 text-center">Failed to load categories. Make sure repo is public.</div>`;
+      }
+    }
+
+    // ================== LOAD PEOPLE IN A CATEGORY ==================
+    async function loadPeople(categoryName) {
+      hideAllViews();
+      document.getElementById("category-view").classList.remove("hidden");
+      document.getElementById("category-title").innerText = categoryName.replace(/_/g, " ");
+
+      const grid = document.getElementById("people-grid");
+      grid.innerHTML = `<div class="col-span-full text-[#a38b5f]">Loading personalities...</div>`;
+
+      try {
+        const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${categoryName}`);
+        const data = await res.json();
+
+        grid.innerHTML = "";
+
+        data.forEach(item => {
+          if (item.type === "dir") {
+            const div = document.createElement("div");
+            div.className = `bg-[#1c1915] border border-[#3a3024] hover:border-[#c9a26f] rounded-2xl p-5 cursor-pointer card-hover`;
+            div.innerHTML = `
+              <div class="flex items-center gap-x-4">
+                <i class="fa-solid fa-user text-[#c9a26f]"></i>
+                <div class="font-medium">${item.name.replace(/_/g, " ")}</div>
+              </div>
+            `;
+            div.onclick = () => loadPDFs(categoryName, item.name);
+            grid.appendChild(div);
+          }
+        });
+
+      } catch (e) {
+        grid.innerHTML = `<div class="text-red-400">Failed to load personalities.</div>`;
+      }
+    }
+
+    // ================== LOAD PDFs FOR A PERSON ==================
+    async function loadPDFs(categoryName, personName) {
+      hideAllViews();
+      document.getElementById("person-view").classList.remove("hidden");
+      document.getElementById("person-title").innerText = personName.replace(/_/g, " ");
+      currentPerson = personName;
+
+      const container = document.getElementById("pdf-list");
+      container.innerHTML = `<div class="text-[#a38b5f]">Loading documents...</div>`;
+
+      try {
+        const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${categoryName}/${personName}`);
+        const data = await res.json();
+
+        container.innerHTML = "";
+
+        data.forEach(file => {
+          if (file.name.endsWith(".pdf")) {
+            const div = document.createElement("div");
+            div.className = `flex items-center justify-between bg-[#1c1915] border border-[#3a3024] hover:border-[#c9a26f] rounded-2xl px-5 py-4 cursor-pointer`;
+            div.innerHTML = `
+              <div class="flex items-center gap-x-3">
+                <i class="fa-solid fa-file-pdf text-[#c9a26f]"></i>
+                <span>${file.name.replace(".pdf", "").replace(/_/g, " ")}</span>
+              </div>
+              <i class="fa-solid fa-arrow-right text-[#a38b5f]"></i>
+            `;
+            div.onclick = () => loadPDF(categoryName, personName, file.name);
+            container.appendChild(div);
+          }
+        });
+
+      } catch (e) {
+        container.innerHTML = `<div class="text-red-400">No documents found.</div>`;
+      }
+    }
+
+    // ================== LOAD & RENDER PDF ==================
+    async function loadPDF(categoryName, personName, fileName) {
+      hideAllViews();
+      document.getElementById("pdf-reader").classList.remove("hidden");
+
+      document.getElementById("reader-person").innerText = personName.replace(/_/g, " ");
+      document.getElementById("reader-pdf-name").innerText = fileName.replace(".pdf", "").replace(/_/g, " ");
+
+      currentPDF = fileName;
+
+      const pdfUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/${categoryName}/${personName}/${fileName}`;
+
+      try {
+        pdfDoc = await pdfjsLib.getDocument(pdfUrl).promise;
+        totalPages = pdfDoc.numPages;
+        currentPageNum = 1;
+
+        document.getElementById("total-pages").innerText = totalPages;
+        renderPage(currentPageNum);
+
+      } catch (e) {
+        alert("Failed to load PDF. Please check if the file exists.");
+      }
+    }
+
+    async function renderPage(pageNum) {
+      const page = await pdfDoc.getPage(pageNum);
+      const canvas = document.getElementById("pdf-canvas");
+      const ctx = canvas.getContext("2d");
+
+      const viewport = page.getViewport({ scale: 1.6 });
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+
+      await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+
+      document.getElementById("current-page").innerText = pageNum;
+      document.getElementById("btn-prev").disabled = pageNum === 1;
+      document.getElementById("btn-next").disabled = pageNum === totalPages;
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function nextPage() {
+      if (currentPageNum < totalPages) {
+        currentPageNum++;
+        renderPage(currentPageNum);
+      }
+    }
+
+    function prevPage() {
+      if (currentPageNum > 1) {
+        currentPageNum--;
+        renderPage(currentPageNum);
+      }
+    }
+
+    // ================== NAVIGATION ==================
+    function hideAllViews() {
+      document.getElementById("home-view").classList.add("hidden");
+      document.getElementById("category-view").classList.add("hidden");
+      document.getElementById("person-view").classList.add("hidden");
+      document.getElementById("pdf-reader").classList.add("hidden");
+    }
+
+    function goBack() {
+      // Simple back navigation
+      if (!document.getElementById("pdf-reader").classList.contains("hidden")) {
+        document.getElementById("pdf-reader").classList.add("hidden");
+        document.getElementById("person-view").classList.remove("hidden");
+      } else if (!document.getElementById("person-view").classList.contains("hidden")) {
+        document.getElementById("person-view").classList.add("hidden");
+        document.getElementById("category-view").classList.remove("hidden");
+      } else {
+        location.reload();
+      }
+    }
+
+    // ================== SEARCH ==================
+    function setupSearch() {
+      const input = document.getElementById("search-input");
+      input.addEventListener("input", () => {
+        const term = input.value.toLowerCase();
+        const cards = document.querySelectorAll("#categories-grid > div");
+        
+        cards.forEach(card => {
+          const text = card.innerText.toLowerCase();
+          card.style.display = text.includes(term) ? "block" : "none";
+        });
+      });
+    }
+
+    // ================== INITIALIZE ==================
+    window.onload = function() {
+      loadCategories();
+      setupSearch();
+    }
+  </script>
+</body>
+</html>
