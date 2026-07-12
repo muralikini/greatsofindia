@@ -297,27 +297,30 @@
     }
 
     async function loadPDF(categoryName, personName, fileName) {
-      hideAllViews();
-      document.getElementById("pdf-reader").classList.remove("hidden");
-      updateNav("pdf");
+  hideAllViews();
+  document.getElementById("pdf-reader").classList.remove("hidden");
 
-      document.getElementById("reader-person").innerText = personName ? personName.replace(/_/g, " ") : categoryName.replace(/_/g, " ");
-      document.getElementById("reader-pdf-name").innerText = fileName.replace(".pdf", "").replace(/_/g, " ");
+  document.getElementById("reader-person").innerText = personName ? personName.replace(/_/g, " ") : categoryName.replace(/_/g, " ");
+  document.getElementById("reader-pdf-name").innerText = fileName.replace(".pdf", "").replace(/_/g, " ");
 
-      currentPDF = fileName;
+  currentPDF = fileName;
 
-      const pdfUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/${CONTENT_PATH}/${categoryName}/${personName ? personName + '/' : ''}${fileName}`;
+  // ✅ Updated line for Git LFS support
+  const pdfUrl = `https://media.githubusercontent.com/media/${GITHUB_OWNER}/${GITHUB_REPO}/main/${CONTENT_PATH}/${categoryName}/${personName ? personName + '/' : ''}${fileName}`;
 
-      try {
-        pdfDoc = await pdfjsLib.getDocument(pdfUrl).promise;
-        totalPages = pdfDoc.numPages;
-        currentPageNum = 1;
-        document.getElementById("total-pages").innerText = totalPages;
-        renderPage(currentPageNum);
-      } catch (e) {
-        alert("Failed to load PDF");
-      }
-    }
+  try {
+    pdfDoc = await pdfjsLib.getDocument(pdfUrl).promise;
+    totalPages = pdfDoc.numPages;
+    currentPageNum = 1;
+
+    document.getElementById("total-pages").innerText = totalPages;
+    renderPage(currentPageNum);
+
+  } catch (e) {
+    alert("Failed to load PDF. Please check the file path.");
+    console.error(e);
+  }
+}
 
     async function renderPage(pageNum) {
       const page = await pdfDoc.getPage(pageNum);
